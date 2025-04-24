@@ -6,6 +6,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("query");
   const grade = searchParams.get("grade");
+
   const startIndex = searchParams.get("startIndex") ?? "1";
 
   if (!query || !grade) {
@@ -23,7 +24,10 @@ export async function GET(request: Request) {
       .executeTakeFirst();
 
     if (existingData) {
-      return NextResponse.json(JSON.parse(existingData.results));
+      return NextResponse.json({
+        ...existingData,
+        results: JSON.parse(existingData.results),
+      });
     }
 
     const data = await queryCSE(query, grade, startIndex);
@@ -32,15 +36,20 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "No data found" }, { status: 404 });
     }
 
-    await db.insertInto("search_results").values({
+    const dbEntry = await db.insertInto("search_results").values({
       id: Date.now().toString(),
       grade,
       query,
       results: JSON.stringify(data.items),
       created_at: new Date(),
-    }).execute();
+    })
+    .returningAll()
+    .executeTakeFirstOrThrow();
 
-    return NextResponse.json(data.items);
+    return NextResponse.json({
+      ...dbEntry,
+      results: data.items,
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });

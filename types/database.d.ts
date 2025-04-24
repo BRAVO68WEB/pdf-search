@@ -17,6 +17,7 @@ interface PDFStoreData {
     description: ColumnType<string>;
     s3_url: ColumnType<string>;
     pdf_url: ColumnType<string>;
+    thumbnail_url: ColumnType<string>;
     created_at: ColumnType<Date>;
 }
 
@@ -25,7 +26,6 @@ interface PDFParsedData {
     search_result_id: ColumnType<string>;
     pdf_store_id: ColumnType<string>;
     relevance: ColumnType<string>;
-    thumbnail_url: ColumnType<string>;
     created_at: ColumnType<Date>;
 }
 

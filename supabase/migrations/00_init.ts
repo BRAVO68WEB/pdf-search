@@ -22,6 +22,7 @@ export async function up(db: Kysely<Database>): Promise<void> {
         .addColumn("description", "text", (col) => col.notNull())
         .addColumn("s3_url", "text", (col) => col.notNull())
         .addColumn("pdf_url", "text", (col) => col.notNull())
+        .addColumn("thumbnail_url", "text", (col) => col.notNull())
         .addColumn("created_at", "timestamptz", (col) => col.notNull().defaultTo(`now()`))
         .execute();
 
@@ -31,7 +32,6 @@ export async function up(db: Kysely<Database>): Promise<void> {
         .addColumn("search_result_id", "text", (col) => col.notNull())
         .addColumn("pdf_store_id", "text", (col) => col.notNull())
         .addColumn("relevance", "text", (col) => col.notNull())
-        .addColumn("thumbnail_url", "text", (col) => col.notNull())
         .addColumn("created_at", "timestamptz", (col) => col.notNull().defaultTo(`now()`))
         .execute();
 }

@@ -38,7 +38,7 @@ export class Uploader {
 	 * @param file File to be uploaded
 	 * @param acl `public-read` or `private` access
 	 */
-	async uploadFile(entity: string, id: string, file: File, acl: ObjectCannedACL) {
+	async uploadFile(entity: string, id: string, file: Blob | Buffer, acl: ObjectCannedACL) {
 		const parallelUploads3 = new Upload({
 			client: Uploader._s3Client,
 			params: {

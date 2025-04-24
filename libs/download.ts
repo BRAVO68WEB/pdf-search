@@ -1,31 +1,44 @@
-// create a function which takes input of a pdf url, downloads it and upload to s3 bucket
-
 import { Uploader } from "./s3"
+import { env } from "@/env";
 
-import { env } from "@/env"
-
-export const downloadPdf = async (url: string) => {
-    return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", url, true);
-        xhr.responseType = "blob"; // Set the response type to 'blob' to handle binary data
-
-        xhr.onload = async () => {
-            if (xhr.status === 200) {
-                const blob = xhr.response;
-                const fileName = url.split("/").pop() ?? Date.now() + ".pdf";
-                const uploader = new Uploader(env.R2_BUCKET_NAME);
-                await uploader.uploadFile("pdfs", fileName, blob, "public-read");
-                resolve(`${env.R2_ENDPOINT}/${fileName}`);
-            } else {
-                reject(new Error(`Failed to download PDF: ${xhr.statusText}`));
-            }
+export const downloadPdf = async (url: string): Promise<{
+    blob: Blob;
+    s3_url: string;
+    is_error: boolean;
+    url: string;
+}> => {
+    try {
+        const response = await fetch(url, {
+            redirect: "follow",
+            keepalive: true,
+            method: "GET",
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Failed to download PDF: ${response.statusText}`);
+        }
+        
+        const blob = await response.blob();
+        const fileName = Date.now() + ".pdf";
+        const uploader = new Uploader(env.R2_BUCKET_NAME);
+        
+        await uploader.uploadFile("pdfs", fileName, blob, "public-read");
+        
+        return {
+            is_error: false,
+            blob,
+            s3_url: `${env.R2_PUBLIC_URL}/${env.R2_BUCKET_NAME}/pdfs/${fileName}`,
+            url,
         };
-
-        xhr.onerror = () => {
-            reject(new Error("Network error while downloading PDF"));
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error("Error:", error.message);
+        }
+        return {
+            is_error: true,
+            blob: new Blob(),
+            s3_url: "",
+            url,
         };
-
-        xhr.send();
-    });
+    }
 }
