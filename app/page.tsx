@@ -32,7 +32,11 @@ export default function Home() {
 					`/api/history?query=${encodeURIComponent(query)}&grade=${encodeURIComponent(grade)}`,
 				);
 				if (response.ok) {
-					const data = await response.json();
+					const data: {
+						id: string;
+						query: string;
+						created_at: string;
+					}[] = await response.json();
 					setSearchHistory(
 						data.map((item: { id: string; query: string; created_at: string }) => ({
 							id: item.id,
@@ -73,7 +77,13 @@ export default function Home() {
 				throw new Error("Search request failed");
 			}
 
-			const data = await response.json();
+			const data: {
+				query: string;
+				grade: string;
+				id: string;
+				created_at: Date;
+				results: string;
+			} = await response.json();
 			const newSearchResultId = data.id;
 			setSearchResultId(newSearchResultId);
 
@@ -115,7 +125,7 @@ export default function Home() {
 			);
 
 			if (response.ok) {
-				const data = await response.json();
+				const data: SearchResultType[] = await response.json();
 				if (data && data.length > 0) {
 					setSearchResults(data);
 					setIsLoading(false);
