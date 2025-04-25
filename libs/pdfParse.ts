@@ -12,6 +12,16 @@ const groq = new Groq({
     apiKey: env.GROQ_API_KEY,
 });
 
+export const getPdfPageCount = async (file_blob: Blob) => {
+    const data = new WebPDFLoader(file_blob, {
+        splitPages: true
+    });
+
+    const doc = await data.load();
+
+    return doc.length;
+}
+
 const findRelevantPagesByText = async (user_query: string, file_blob: Blob) => {
     const pages: number[] = [];
 
@@ -20,9 +30,8 @@ const findRelevantPagesByText = async (user_query: string, file_blob: Blob) => {
     });
 
     const doc = await data.load();
-    console.log("Total Pages: ", doc.length);
 
-    if(doc.length > 100) {
+    if(doc.length > 75) {
         return {
             pages,
             total_page: doc.length,
@@ -131,160 +140,6 @@ const findRelevantPagesByText = async (user_query: string, file_blob: Blob) => {
     };
 }
 
-// export const findRelevantPagesByImage = async (user_query: string, file_blob: Blob) => {
-//     const pages: number[] = [];
-
-//     // Convert blob to arraybuffer 
-//     const arrayBuffer = await file_blob.arrayBuffer();
-//     // Extract images
-//     const imagesArrRaw = await extImages(arrayBuffer);
-
-//     console.log("Total Images: ", imagesArrRaw.length);
-    
-//     // Skip if no images found
-//     if (imagesArrRaw.length === 0) {
-//         return pages;
-//     }
-
-//     const imageArr : {
-//         page_no: number,
-//         image_url: string
-//     }[] = [];
-
-//     // Optimize image uploads with concurrent processing
-//     const uploader = new Uploader(env.R2_BUCKET_NAME);
-//     const uploadLimit = pLimit(5); // Upload 5 images concurrently
-    
-//     const uploadPromises = imagesArrRaw.map(image => 
-//         uploadLimit(async () => {
-//             try {
-//                 const image_name = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}.png`;
-//                 await uploader.uploadFile("images", image_name, image.image, "public-read");
-//                 return {
-//                     page_no: image.page_no,
-//                     image_url: `${env.R2_PUBLIC_URL}/${env.R2_BUCKET_NAME}/images/${image_name}`,
-//                 };
-//             } catch (error) {
-//                 console.error(`Error uploading image for page ${image.page_no}:`, error);
-//                 return null;
-//             }
-//         })
-//     );
-    
-//     const uploadResults = await Promise.all(uploadPromises);
-//     imageArr.push(...uploadResults.filter(Boolean) as {page_no: number, image_url: string}[]);
-
-//     const zodSchema = z.object({
-//         page_no: z.number(),
-//         is_relevant: z.boolean(),
-//     });
-
-//     const jsonSchema = JSON.stringify(zodSchema.shape, null, 2);
-    
-//     // Implement caching for image analysis
-//     const analysisCache = new Map();
-
-//     const queryGroq = async ({
-//         image_url,
-//         page_no
-//     } : {
-//         image_url: string,
-//         page_no: number,
-//     }) => {
-//         const cacheKey = `${page_no}-${image_url}`;
-        
-//         if (analysisCache.has(cacheKey)) {
-//             return analysisCache.get(cacheKey);
-//         }
-        
-//         const response = await groq.chat.completions.create({
-//             model: "meta-llama/llama-4-maverick-17b-128e-instruct",
-//             messages: [
-//                 {
-//                     role: "system",
-//                     content: `You are a AI Assistant that finds the diagrams or images in pages of pdf documents that are relevant to the user's query and outputs answer in JSON.\n'The JSON object must use the schema: ${jsonSchema}`,
-//                 },
-//                 {
-//                     role: "user",
-//                     content: [
-//                         {
-//                             type: "image_url",
-//                             image_url: {
-//                                 url: image_url,
-//                                 detail: "auto"
-//                             },
-//                         },
-//                         {
-//                             type: "text",
-//                             text: `Page number: ${page_no}`,
-//                         },
-//                         {
-//                             type: "text",
-//                             text: `User query: ${user_query}`
-//                         },
-//                         {
-//                             type: "text",
-//                             text: `Please answer with a JSON object that contains the following fields:
-//                             - page_no: The page number of the PDF file
-//                             - is_relevant: A boolean value that indicates whether the page is relevant to the user's query
-//                             The JSON object must use the schema: ${jsonSchema}`
-//                         }
-//                     ],
-//                 },
-//             ],
-//             temperature: 1,
-//             response_format: {
-//                 type: "json_object",
-//             },
-//             stream: false,
-//         });
-        
-//         analysisCache.set(cacheKey, response);
-//         return response;
-//     }
-
-//     const processImages = async () => {
-//         // Use concurrency limiting for image analysis
-//         const analysisLimit = pLimit(3); // Process 3 images concurrently
-        
-//         // Group images into batches
-//         const batchSize = 5;
-//         const batches = [];
-        
-//         for (let i = 0; i < imageArr.length; i += batchSize) {
-//             batches.push(imageArr.slice(i, i + batchSize));
-//         }
-        
-//         // Process batches sequentially, but images within batches concurrently
-//         for (const batch of batches) {
-//             const batchPromises = batch.map(page => {
-//                 return analysisLimit(async () => {
-//                     try {
-//                         const response = await queryGroq({
-//                             image_url: page.image_url,
-//                             page_no: page.page_no
-//                         });
-                        
-//                         const parsedResponse = zodSchema.parse(JSON.parse(response.choices[0].message.content!));    
-//                         return parsedResponse.is_relevant ? page.page_no : null;
-//                     } catch (error) {
-//                         console.error(`Error analyzing image for page ${page.page_no}:`, error);
-//                         return null;
-//                     }
-//                 });
-//             });
-            
-//             const results = await Promise.all(batchPromises);
-//             pages.push(...results.filter(Boolean) as number[]);
-//         }
-//     };
-
-//     await processImages();
-    
-//     return pages;
-// }
-
-
 export const getRelevantPages = async (user_query: string, file_blob: Blob, meta_data: {
     query: string,
     grade: string,
@@ -343,16 +198,6 @@ export const getRelevantPages = async (user_query: string, file_blob: Blob, meta
     
     const pagesByText = pagesByTextObj.pages;
     
-    // Only run image analysis if we have text results (optimization)
-    // const imageAnalysisPromise = pagesByText.length > 0 
-        // ? findRelevantPagesByImage(user_query, file_blob)
-        // : Promise.resolve([]);
-    
-    // const pagesByImage = await imageAnalysisPromise;
-
-    // Efficiently merge and deduplicate pages
-    // const allPages = Array.from(new Set([...pagesByText, ...pagesByImage])).sort((a, b) => a - b);
-
     const allPages = pagesByText
 
     return {

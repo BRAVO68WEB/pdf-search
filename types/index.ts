@@ -6,6 +6,7 @@ export type SearchResultType = {
   description: string;
   image: string;
   totalPages: number;
+  pdf_url: string;
   relevantPages?: string[];
 }; 
 

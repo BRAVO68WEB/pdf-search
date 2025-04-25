@@ -8,8 +8,6 @@ export async function GET(request: Request) {
   const query = searchParams.get("query");
   const grade = searchParams.get("grade");
 
-  const startIndex = searchParams.get("startIndex") ?? "1";
-
   if (!query || !grade) {
     return NextResponse.json({ error: "Missing query or grade" }, { status: 400 });
   }
@@ -31,9 +29,17 @@ export async function GET(request: Request) {
       });
     }
 
-    const data = await queryCSE(query, grade, startIndex);
+    // fetch 20 search results from google
+    const searchPromise = [
+      queryCSE(query, grade, "1"),
+      queryCSE(query, grade, "11"),
+    ]
+    const dataRaw = await Promise.all(searchPromise)
 
-    if(!data?.items) {
+    // Flatten the array of arrays
+    const data = dataRaw.flat();
+
+    if(!data) {
       return NextResponse.json({ error: "No data found" }, { status: 404 });
     }
 
@@ -41,7 +47,7 @@ export async function GET(request: Request) {
       id: uuidv7(),
       grade,
       query,
-      results: JSON.stringify(data.items),
+      results: JSON.stringify(data),
       created_at: new Date(),
     })
     .returningAll()
@@ -49,7 +55,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       ...dbEntry,
-      results: data.items,
+      results: data,
     });
   } catch (error) {
     console.error(error);
