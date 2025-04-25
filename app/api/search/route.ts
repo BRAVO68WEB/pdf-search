@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { queryCSE } from "@/libs/cse";
 import { DB } from "@/supabase/kysely";
+import { v7 as uuidv7 } from "uuid";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -37,7 +38,7 @@ export async function GET(request: Request) {
     }
 
     const dbEntry = await db.insertInto("search_results").values({
-      id: Date.now().toString(),
+      id: uuidv7(),
       grade,
       query,
       results: JSON.stringify(data.items),

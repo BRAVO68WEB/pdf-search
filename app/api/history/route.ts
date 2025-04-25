@@ -12,16 +12,26 @@ export async function GET(request: Request) {
 
     try {
         const db = await DB.getInstance();
+        
+        // Get unique queries that match the input
         const data = await db.selectFrom("search_results")
             .select([
                 'id',
                 'query',
+                'created_at'
             ])
             .where("query", "like", `%${query}%`)
             .where("grade", "=", grade)
+            .orderBy('created_at', 'desc')
+            .limit(10)
             .execute();
 
-        return NextResponse.json(data);
+        // Return unique queries
+        const uniqueQueries = Array.from(
+            new Map(data.map(item => [item.query, item])).values()
+        );
+
+        return NextResponse.json(uniqueQueries);
     } catch (error) {
         console.error(error);
         return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
