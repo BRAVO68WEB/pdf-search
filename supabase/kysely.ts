@@ -1,11 +1,11 @@
-import { FileMigrationProvider, Kysely, Migrator, PostgresDialect } from 'kysely'
-import { Pool } from 'pg'
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import { FileMigrationProvider, Kysely, Migrator, PostgresDialect } from "kysely";
+import { Pool } from "pg";
+import fs from "node:fs/promises";
+import path from "node:path";
 
-import { env } from '@/env';
+import { env } from "@/env";
 
-import type { Database } from '../types/database'
+import type { Database } from "../types/database";
 
 /**
  * Postgres DB Adapter
@@ -16,14 +16,14 @@ class PostgresDB {
 
 	static async getInstance(): Promise<Kysely<Database>> {
 		this.postgres ??= new Pool({
-				connectionString: env.DATABASE_URL,
-			});
+			connectionString: env.DATABASE_URL,
+		});
 
 		this.db ??= new Kysely({
-				dialect: new PostgresDialect({
-					pool: this.postgres,
-				}),
-			});
+			dialect: new PostgresDialect({
+				pool: this.postgres,
+			}),
+		});
 
 		return this.db;
 	}
@@ -42,7 +42,7 @@ class PostgresDB {
  */
 export class DB {
 	private static kysely: Promise<Kysely<Database>> | undefined;
-  private static kysely_migration: Promise<Migrator> | undefined;
+	private static kysely_migration: Promise<Migrator> | undefined;
 
 	static getInstance(): Promise<Kysely<Database>> {
 		if (!this.kysely) {
@@ -58,17 +58,17 @@ export class DB {
 		return kysely;
 	}
 
-  static async migrate(kysely: Kysely<Database>, auto_migrate: boolean) {
+	static async migrate(kysely: Kysely<Database>, auto_migrate: boolean) {
 		if (!auto_migrate) {
 			return;
 		}
 
-    const migrator = new Migrator({
+		const migrator = new Migrator({
 			db: kysely,
 			provider: new FileMigrationProvider({
 				fs,
 				path,
-				migrationFolder: path.join(process.cwd(), 'supabase/migrations'),
+				migrationFolder: path.join(process.cwd(), "supabase/migrations"),
 			}),
 		});
 
@@ -80,12 +80,12 @@ export class DB {
 		if (error) {
 			console.log(error.message);
 		} else if (results?.length) {
-			console.log('Migrations finished!');
+			console.log("Migrations finished!");
 			for (const { migrationName, status } of results) {
 				console.log(`  - ${migrationName}: ${status}`);
 			}
 		} else {
-			console.log('Everything up-to-date.');
+			console.log("Everything up-to-date.");
 		}
 	}
 
@@ -103,7 +103,7 @@ export class DB {
 			provider: new FileMigrationProvider({
 				fs,
 				path,
-				migrationFolder: new URL(import.meta.resolve('./migrations')).pathname,
+				migrationFolder: new URL(import.meta.resolve("./migrations")).pathname,
 			}),
 		});
 	}

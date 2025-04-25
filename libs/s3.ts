@@ -1,7 +1,7 @@
-import { ObjectCannedACL, S3Client, type S3ClientConfig } from '@aws-sdk/client-s3';
-import { Upload } from '@aws-sdk/lib-storage';
+import { ObjectCannedACL, S3Client, type S3ClientConfig } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
 
-import { env } from '@/env';
+import { env } from "@/env";
 
 /**
  * Uploader class to upload files to S3
@@ -20,7 +20,7 @@ export class Uploader {
 		};
 		Uploader._s3Opts = options;
 		const s3ClientOpts: S3ClientConfig = {
-            endpoint: env.R2_ENDPOINT,
+			endpoint: env.R2_ENDPOINT,
 			region: "apac",
 			credentials: {
 				accessKeyId: env.R2_ACCESS_KEY_ID,
@@ -45,7 +45,7 @@ export class Uploader {
 				Bucket: Uploader._s3Opts.bucket,
 				ACL: acl,
 				Body: file,
-				Key: entity + '/' + id,
+				Key: entity + "/" + id,
 			},
 		});
 
