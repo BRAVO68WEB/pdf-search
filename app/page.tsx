@@ -2,60 +2,122 @@
 
 import { GradeDropdown, Grade } from '@/components/GradeDropdown';
 import { SearchBar } from '@/components/SearchBar';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { SearchResults } from '@/components/SearchResults';
 import { SearchResultType } from '@/types';
-import { handleQuery } from '@/actions';
-
-// Fixture data for search results
-const searchResults: SearchResultType[] = [
-  {
-    id: String(0),
-    title: "Advanced Multiplication Practice: 3-Digit Numbers",
-    description: "Detailed worksheets focusing on advanced multiplication techniques for 3-digit numbers. Perfect for students looking to strengthen their multiplication skills.",
-    image: "https://images.twinkl.co.uk/tw1n/image/private/s--iB_aQ8je--/e_sharpen:100,q_auto:eco,w_1260/image_repo/e5/55/t2-m-1457-long-multiplication-practice-3-digits-x-2-digits_ver_3.jpeg",
-    totalPages: 15
-  },
-  {
-    id: String(1),
-    title: "Thanksgiving-Themed 2-Digit Multiplication Worksheets",
-    description: "Engaging Thanksgiving-themed worksheets for practicing 2-digit by 2-digit multiplication. Includes fun coloring activities to make learning multiplication more enjoyable.",
-    image: "https://ecdn.teacherspayteachers.com/thumbitem/THANKSGIVING-Multiplication-Coloring-Worksheets-2-DIGIT-X-2-DIGIT-4998456-1572905399/original-4998456-4.jpg",
-    totalPages: 24,
-    relevantPages: ["3-10"]
-  },
-  {
-    id: String(2),
-    title: "Long Multiplication Practice: 3-Digits by 2-Digits",
-    description: "Comprehensive practice worksheets for mastering long multiplication with 3-digit by 2-digit numbers. Includes step-by-step examples and practice problems.",
-    image: "https://images.twinkl.co.uk/tw1n/image/private/t_630/image_repo/62/d0/T2-M-1457-Long-Multiplication-Practice-3-Digits-x-2-Digits.jpg",
-    totalPages: 18,
-    relevantPages: ["1-2", "6-10"]
-  },
-];
+import { getBasicSearchResults, calculateRelevance } from '@/actions/op';
+import debounce from 'lodash.debounce';
 
 export default function Home() {
+  const [searchResults, setSearchResults] = useState<SearchResultType[]>([]);
   const [selectedGrade, setSelectedGrade] = useState<Grade>(Grade.ALL);
-  const [searchQuery, setSearchQuery] = useState("Volcanoes");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isCalculatingRelevance, setIsCalculatingRelevance] = useState(false);
+  const [searchResultId, setSearchResultId] = useState<string | null>(null);
+  const [pdfTexts, setPdfTexts] = useState<Array<{pdf_store_id: string, pages: number[]}>>([]);
 
-  useEffect(()=> {
-    handleQuery("1745537882756")
-      .then((data) => {
-        console.log("Search Results:", data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-  }, [])
-  
-  // Mock search history data
-  const searchHistory = [
-    "Volcanoes",
-    "Earthquakes",
-    "Plate Tectonics",
-    "Natural Disasters",
-    "Geology Basics"
-  ];
+  // Fetch search history when query changes
+  const fetchSearchHistory = useCallback(
+    debounce(async (query: string, grade: string) => {
+      if (!query || query.length < 2) {
+        setSearchHistory([]);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/history?query=${encodeURIComponent(query)}&grade=${encodeURIComponent(grade)}`);
+        if (response.ok) {
+          const data = await response.json();
+          setSearchHistory(data.map((item: any) => item.query));
+        }
+      } catch (error) {
+        console.error("Error fetching search history:", error);
+      }
+    }, 300),
+    []
+  );
+
+  // Update history when query or grade changes
+  useEffect(() => {
+    fetchSearchHistory(searchQuery, selectedGrade);
+  }, [searchQuery, selectedGrade, fetchSearchHistory]);
+
+  // Perform search
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+    
+    setIsLoading(true);
+    setSearchResults([]);
+    setSearchResultId(null);
+    setPdfTexts([]);
+    
+    try {
+      // Step 1: Create search request using the API
+      const response = await fetch(
+        `/api/search?query=${encodeURIComponent(searchQuery)}&grade=${encodeURIComponent(selectedGrade)}`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Search request failed');
+      }
+      
+      const data = await response.json();
+      const newSearchResultId = data.id;
+      setSearchResultId(newSearchResultId);
+      
+      // Step 2: Get basic search results using server action
+      const basicResults = await getBasicSearchResults(newSearchResultId);
+      setSearchResults(basicResults);
+      
+      // Store PDF texts for relevance calculation
+      const textsForRelevance = basicResults.map(result => ({
+        pdf_store_id: result.id,
+        pages: [] // We don't have pages yet, but the structure is needed
+      }));
+      setPdfTexts(textsForRelevance);
+      
+      // Step 3: Calculate relevance in the background
+      setIsCalculatingRelevance(true);
+      const relevantResults = await calculateRelevance(newSearchResultId, textsForRelevance);
+      
+      // Update results with relevance information
+      if (relevantResults.length > 0) {
+        setSearchResults(relevantResults);
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+    } finally {
+      setIsLoading(false);
+      setIsCalculatingRelevance(false);
+    }
+  };
+
+  // Check for pre-existing results when a search history item is selected
+  const handleHistorySelect = async (query: string) => {
+    setSearchQuery(query);
+    
+    try {
+      // Try to fetch pre-existing results first
+      const response = await fetch(`/api/pre?search_result_id=${encodeURIComponent(query)}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.length > 0) {
+          setSearchResults(data);
+          return; // We already have results, no need to search again
+        }
+      }
+      
+      // If no pre-existing results, perform a new search
+      handleSearch();
+    } catch (error) {
+      console.error("Error fetching pre-existing results:", error);
+      // Fall back to new search
+      handleSearch();
+    }
+  };
 
   return (
     <div className="flex flex-col items-center w-full sm:w-3/4 max-w-full mx-auto pt-6">
@@ -70,6 +132,8 @@ export default function Home() {
                 onChange={setSearchQuery}
                 placeholder="Search..."
                 history={searchHistory}
+                onSearch={handleSearch}
+                onHistorySelect={handleHistorySelect}
               />
             </div>
             <div className="ml-4 relative z-10 h-12">
@@ -81,7 +145,20 @@ export default function Home() {
       
       {/* Search results section */}
       <div className="w-full px-4 mt-6">
-        <SearchResults results={searchResults} />
+        {isLoading ? (
+          <div className="text-center py-8">
+            <p>Loading search results...</p>
+          </div>
+        ) : (
+          <>
+            <SearchResults results={searchResults} />
+            {isCalculatingRelevance && searchResults.length > 0 && (
+              <div className="text-center py-2 text-sm text-gray-500">
+                Calculating relevance...
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
