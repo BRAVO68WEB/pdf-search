@@ -3,14 +3,14 @@
 	"name": "frontend",
 	"scripts": {
 		"build": "next build",
+		"cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
 		"db:migrate": "bun run supabase/migrate.ts",
+		"deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
 		"dev": "next dev --turbopack",
 		"format": "prettier --write .",
 		"start": "next start",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+		"upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.787.0",
