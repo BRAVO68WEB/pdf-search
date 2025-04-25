@@ -62,7 +62,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 				<input
 					ref={inputRef}
 					type="text"
-					className="w-full h-12 px-4 pr-10 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					className="w-full h-12 px-4 pr-10 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
 					placeholder={placeholder}
 					value={value}
 					onChange={e => onChange(e.target.value)}
