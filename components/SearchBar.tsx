@@ -4,9 +4,13 @@ interface SearchBarProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  history?: string[];
+  history?: {
+    id: string,
+    query: string,
+    created_at: string
+  }[];
   onSearch: () => void;
-  onHistorySelect: (query: string) => void;
+  onHistorySelect: (id: string, query: string) => void;
 }
 
 export const SearchBar: React.FC<SearchBarProps> = ({
@@ -47,8 +51,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     }
   };
 
-  const handleHistoryItemClick = (query: string) => {
-    onHistorySelect(query);
+  const handleHistoryItemClick = (id: string, query: string) => {
+    onHistorySelect(id, query);
     setShowHistory(false);
   };
 
@@ -81,21 +85,25 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           ref={historyRef}
           className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"
         >
-          {history.map((item, index) => (
-            <div
-              key={index}
-              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-              onClick={() => handleHistoryItemClick(item)}
+          {history.map((item) => (
+            <button
+              key={item.id}
+              className="w-full px-4 py-2 hover:bg-gray-100 cursor-pointer text-left"
+              onClick={() => handleHistoryItemClick(item.id, item.query)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleHistoryItemClick(item.id, item.query)
+                }
+              }}
             >
               <div className="flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                {item}
+                {item.query}
               </div>
-            </div>
-          ))}
-        </div>
+            </button>
+          ))}        </div>
       )}
     </div>
   );

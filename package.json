@@ -5,7 +5,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "db:migrate": "bun run supabase/migrate.ts"
+    "db:migrate": "bun run supabase/migrate.ts",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.787.0",
@@ -36,7 +37,7 @@
     "pdf-parse": "^1.1.1",
     "pdf-to-png-converter": "^3.6.5",
     "pg": "^8.15.5",
-    "prettier": "^3.3.3",
+    "prettier": "^3.5.3",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-pdf": "^9",
@@ -44,6 +45,7 @@
     "zod": "^3.24.3"
   },
   "devDependencies": {
+    "@bravo68web/prettier-config": "^1.2.6",
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "22.10.2",
     "@types/pg": "^8.11.14",
@@ -56,5 +58,6 @@
     "tailwindcss": "3.4.17",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.7.2"
-  }
+  },
+  "prettier": "@bravo68web/prettier-config"
 }

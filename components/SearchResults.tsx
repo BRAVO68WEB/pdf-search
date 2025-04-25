@@ -1,4 +1,5 @@
 import { SearchResultType } from '@/types';
+import { Printer } from "lucide-react"
 
 // PagesPill component
 const PagesPill = ({ totalPages }: { totalPages: number }) => {
@@ -10,7 +11,7 @@ const PagesPill = ({ totalPages }: { totalPages: number }) => {
 };
 
 // RelevancyInfo component
-const RelevancyInfo = ({ totalPages, relevantPages }: { totalPages: number; relevantPages?: { startPage: number; endPage: number } }) => {
+const RelevancyInfo = ({ totalPages, relevantPages }: { totalPages: number; relevantPages?: string[] }) => {
   if (!relevantPages) {
     return (
       <div className="flex items-center gap-1 text-sm text-gray-500 mt-2">
@@ -20,30 +21,21 @@ const RelevancyInfo = ({ totalPages, relevantPages }: { totalPages: number; rele
     );
   }
 
-  const range = relevantPages.endPage - relevantPages.startPage + 1;
-  if (range === totalPages) {
-    return (
-      <div className="text-sm text-gray-500 mt-2">
-        All pages are relevant
-      </div>
-    );
-  }
-
   return (
     <div className="text-sm text-gray-500 mt-2">
-      {range} relevant pages from page {relevantPages.startPage} - {relevantPages.endPage}
+      Relevant content in page {relevantPages.join(", ")}
     </div>
   );
 };
 
 // Individual search result component
-const SearchResult = ({ title, description, image, totalPages, relevantPages }: SearchResultType) => {
+const SearchResult = ({ title, description, image, totalPages, relevantPages, pdf_url }: SearchResultType) => {
   return (
     <div className="flex flex-col sm:flex-row border rounded-lg overflow-hidden mb-4 bg-white">
       <div className="w-full sm:w-1/4 relative">
         <div className="w-full h-[160px]">
           <img 
-            src={image}
+            src={image ?? "/public/pdf.png"}
             alt={title}
             className="w-full h-full object-cover object-[top_left]"
           />
@@ -54,12 +46,31 @@ const SearchResult = ({ title, description, image, totalPages, relevantPages }: 
         <h3 className="font-medium text-base mb-2">{title}</h3>
         <p className="text-sm text-gray-600">{description}</p>
         <RelevancyInfo totalPages={totalPages} relevantPages={relevantPages} />
+
+        <div className="flex items-center justify-between mt-4">
+          <PrintIcon pdf_url={pdf_url} />
+        </div>
       </div>
     </div>
   );
 };
 
-// Search results container component
+const handleDownload = (url: string) => {
+  window.open(url, "_blank");
+}
+
+const PrintIcon = ({
+  pdf_url
+} : {
+  pdf_url: string,
+}) => {
+  return (
+    <button className="text-gray-500 hover:text-gray-700" onClick={() => handleDownload(pdf_url)}>
+      <Printer />
+    </button>
+  );
+};
+
 export const SearchResults = ({ results }: { results: SearchResultType[] }) => {
   return (
     <div>

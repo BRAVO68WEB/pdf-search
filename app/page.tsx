@@ -9,19 +9,26 @@ import { getBasicSearchResults, calculateRelevance } from '@/actions/op';
 import debounce from 'lodash.debounce';
 
 export default function Home() {
-  const [searchResults, setSearchResults] = useState<SearchResultType[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResultType[]>([{
+    id: "1",
+    title: "Sample Title",
+    description: "Sample Description",
+    image: "",
+    totalPages: 10,
+    relevantPages: ["1", "2", "3"],
+    pdf_url: "https://example.com/sample.pdf"
+  }]);
   const [selectedGrade, setSelectedGrade] = useState<Grade>(Grade.ALL);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [searchHistory, setSearchHistory] = useState<{id: string, query: string, created_at: string}[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isCalculatingRelevance, setIsCalculatingRelevance] = useState(false);
   const [searchResultId, setSearchResultId] = useState<string | null>(null);
-  const [pdfTexts, setPdfTexts] = useState<Array<{pdf_store_id: string, pages: number[]}>>([]);
 
   // Fetch search history when query changes
   const fetchSearchHistory = useCallback(
     debounce(async (query: string, grade: string) => {
-      if (!query || query.length < 2) {
+      if (!query) {
         setSearchHistory([]);
         return;
       }
@@ -30,7 +37,15 @@ export default function Home() {
         const response = await fetch(`/api/history?query=${encodeURIComponent(query)}&grade=${encodeURIComponent(grade)}`);
         if (response.ok) {
           const data = await response.json();
-          setSearchHistory(data.map((item: any) => item.query));
+          setSearchHistory(data.map((item: {
+            id: string,
+            query: string,
+            created_at: string
+          }) => ({
+            id: item.id,
+            query: item.query,
+            created_at: item.created_at
+          })));
         }
       } catch (error) {
         console.error("Error fetching search history:", error);
@@ -41,7 +56,9 @@ export default function Home() {
 
   // Update history when query or grade changes
   useEffect(() => {
-    fetchSearchHistory(searchQuery, selectedGrade);
+    if(!searchResultId) {
+      fetchSearchHistory(searchQuery, selectedGrade);
+    }
   }, [searchQuery, selectedGrade, fetchSearchHistory]);
 
   // Perform search
@@ -51,7 +68,6 @@ export default function Home() {
     setIsLoading(true);
     setSearchResults([]);
     setSearchResultId(null);
-    setPdfTexts([]);
     
     try {
       // Step 1: Create search request using the API
@@ -70,13 +86,13 @@ export default function Home() {
       // Step 2: Get basic search results using server action
       const basicResults = await getBasicSearchResults(newSearchResultId);
       setSearchResults(basicResults);
+      setIsLoading(false);
       
       // Store PDF texts for relevance calculation
       const textsForRelevance = basicResults.map(result => ({
         pdf_store_id: result.id,
         pages: [] // We don't have pages yet, but the structure is needed
       }));
-      setPdfTexts(textsForRelevance);
       
       // Step 3: Calculate relevance in the background
       setIsCalculatingRelevance(true);
@@ -89,27 +105,29 @@ export default function Home() {
     } catch (error) {
       console.error("Search error:", error);
     } finally {
-      setIsLoading(false);
       setIsCalculatingRelevance(false);
     }
   };
 
   // Check for pre-existing results when a search history item is selected
-  const handleHistorySelect = async (query: string) => {
-    setSearchQuery(query);
-    
+  const handleHistorySelect = async (search_result_id: string, query: string) => {
     try {
+      setSearchResultId(search_result_id);
+      setSearchQuery(query);
+      setIsLoading(true);
       // Try to fetch pre-existing results first
-      const response = await fetch(`/api/pre?search_result_id=${encodeURIComponent(query)}`);
+      const response = await fetch(`/api/pre?search_result_id=${encodeURIComponent(search_result_id)}`);
       
       if (response.ok) {
         const data = await response.json();
         if (data && data.length > 0) {
           setSearchResults(data);
+          setIsLoading(false);
           return; // We already have results, no need to search again
         }
       }
-      
+
+      setSearchQuery(query);
       // If no pre-existing results, perform a new search
       handleSearch();
     } catch (error) {
