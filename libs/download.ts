@@ -1,5 +1,6 @@
 import { Uploader } from "./s3"
 import { env } from "@/env";
+import { v7 as uuidv7 } from "uuid";
 
 export const downloadPdf = async (url: string): Promise<{
     blob: Blob;
@@ -19,7 +20,7 @@ export const downloadPdf = async (url: string): Promise<{
         }
         
         const blob = await response.blob();
-        const fileName = Date.now() + ".pdf";
+        const fileName = uuidv7() + ".pdf";
         const uploader = new Uploader(env.R2_BUCKET_NAME);
         
         await uploader.uploadFile("pdfs", fileName, blob, "public-read");
