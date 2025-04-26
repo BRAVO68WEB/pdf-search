@@ -128,6 +128,7 @@ Then wrote migration scripts to create the tables. Check [db/migrations](./src/d
 ## Frontend 🖥️
 
 - It was already pre-built by the team. So, just did minor changes.
+- Added Print down to PDF button to download the PDF files.
 
 ## Integrations 🧪
 
@@ -177,6 +178,7 @@ Check [.github/workflows/deploy-cf.yaml](.github/workflows/deploy-cf.yaml) for m
 - Batch parsing is also done in parallel to improve the performance.
 - The app is able to handle multiple requests at the same time.
 - Ranking is partially done. Non-relevant results are removed from the search results.
+- Redis Caching is Implemented.
 
 ## Conclusion 🎉
 
