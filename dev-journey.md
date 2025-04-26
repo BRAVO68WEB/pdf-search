@@ -179,4 +179,6 @@ Check [.github/workflows/deploy-cf.yaml](.github/workflows/deploy-cf.yaml) for m
 
 ## Conclusion 🎉
 
+All code from "Server Actions" and "API Routes" can be shipped to dedicated REST API for better performance and maintainability.
+
 Thank you, Astral Copilot Team for the opportunity to work on this project. It was a great experience and I learned a lot about building Next.js, TypeScript, and LLMs.
