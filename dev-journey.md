@@ -175,6 +175,7 @@ Check [.github/workflows/deploy-cf.yaml](.github/workflows/deploy-cf.yaml) for m
 - The app is fast and responsive. The search results are returned in less than 30 secs.
 - Batch parsing is also done in parallel to improve the performance.
 - The app is able to handle multiple requests at the same time.
+- Ranking is partially done. Non-relevant results are removed from the search results.
 
 ## Conclusion 🎉
 
