@@ -13,7 +13,7 @@ To run the Project, follow these steps:
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/BRAVO68WEB/pdf-search 
+git clone https://github.com/BRAVO68WEB/pdf-search
 ```
 
 2. Change into the project directory:
@@ -88,6 +88,7 @@ Check [Database Schema](./types/database.d.ts) for more details.
 ## Environment Variables 🌍
 
 To run the project, you need to set up the following environment variables:
+
 ```
 GROQ_API_KEY=                   // Groq API Key
 CSE_API_KEY=                    // Google Custom Search Engine API Key

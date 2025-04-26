@@ -5,7 +5,7 @@ This assignment was a great opportunity to build a full-stack application using 
 ## Research 🔎
 
 First and the foremost thing that I did was to break the entire project to into multiple subparts.
-    
+
 - [Dev Journey 🕸️](#dev-journey-️)
   - [Research 🔎](#research-)
   - [Google Search 📄](#google-search-)
@@ -41,11 +41,12 @@ This was most annoying part of the Project. I tried over 15+ libraries and none 
 
 Then, I stumbled upon `pdf-parse` library. This library was good but had some limitations. It was not able to parse the PDF files properly. I had to do some workarounds to make it work. Even, the widely used `pdf-dist` library was not able to parse the PDF files properly. Check this Github Issue for more reference [react-pdf#1811](https://github.com/wojtekmaj/react-pdf/issues/1811)
 
-Main reason, I was facing issues was because of "Server-Sie Rendering" using NextJS's Server Actions. 
+Main reason, I was facing issues was because of "Server-Sie Rendering" using NextJS's Server Actions.
 
-After more research, I found that the `@langchain/community` library has "WebPDFLoader" which is able to parse the PDF files properly. I used that library to parse the PDF files. This was a game changer. 
+After more research, I found that the `@langchain/community` library has "WebPDFLoader" which is able to parse the PDF files properly. I used that library to parse the PDF files. This was a game changer.
 
 Why?
+
 - Serverless Deployment don't allow to create files on the server.
 - Parsing Speed is great
 
@@ -75,15 +76,15 @@ I used the Groq API to get the results. The API was easy to use and I was able t
 
 ```js
 const response = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
-    messages: [
-        {
-            role: "system",
-            content: `You are a AI Assistant that finds the pages that are relevant to the user's query and outputs answer in JSON.\n'The JSON object must use the schema: ${jsonSchema}`,
-        },
-        {
-            role: "user",
-            content: `
+	model: "llama-3.3-70b-versatile",
+	messages: [
+		{
+			role: "system",
+			content: `You are a AI Assistant that finds the pages that are relevant to the user's query and outputs answer in JSON.\n'The JSON object must use the schema: ${jsonSchema}`,
+		},
+		{
+			role: "user",
+			content: `
                 User query: ${user_query}
                 Page number: ${page_no}
                 Page content: ${pageContent}
@@ -92,13 +93,13 @@ const response = await groq.chat.completions.create({
                 - is_relevant: A boolean value that indicates whether the page is relevant to the user's query
                 The JSON object must use the schema: ${jsonSchema}
             `,
-        },
-    ],
-    temperature: 0,
-    response_format: {
-        type: "json_object",
-    },
-    stream: false,
+		},
+	],
+	temperature: 0,
+	response_format: {
+		type: "json_object",
+	},
+	stream: false,
 });
 ```
 
@@ -163,7 +164,7 @@ Check [.github/workflows/deploy-cf.yaml](.github/workflows/deploy-cf.yaml) for m
 ## Improvements 🛠️
 
 - Add a loading spinner to the search results page.
-- Create embeddings for the search results and store them in a vector database. This will improve the search speed and accuracy, also can be used for other use-cases like, 
+- Create embeddings for the search results and store them in a vector database. This will improve the search speed and accuracy, also can be used for other use-cases like,
   - Text Summarization
   - Text Classification
   - Text Generation

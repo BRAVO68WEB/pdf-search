@@ -52,9 +52,7 @@ const findRelevantPagesByText = async (user_query: string, file_blob: Blob) => {
 					const pageContent = page.pageContent;
 
 					try {
-						const response = await queryGroq(
-							user_query,
-							{
+						const response = await queryGroq(user_query, {
 							pageContent,
 							page_no,
 						});
