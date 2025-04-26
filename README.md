@@ -1,6 +1,19 @@
-# Astral PDF Search Challenge - Getting Started!
+# Astral PDF Search Challenge
 
 This repository contains the code for the Astral PDF Search Challenge. The goal of this challenge is to create a system that can efficiently search through a large collection of PDF document and return relevant results based on user queries.
+
+## Table of Contents 📚
+
+- [Astral PDF Search Challenge](#astral-pdf-search-challenge)
+  - [Table of Contents 📚](#table-of-contents-)
+  - [Dev Journey 🕸️](#dev-journey-️)
+  - [Getting Started 🚀](#getting-started-)
+  - [Tech Stack 🔨](#tech-stack-)
+  - [Project Structure 📁](#project-structure-)
+  - [API Routes 📡](#api-routes-)
+  - [Database Schema 🗄️](#database-schema-️)
+  - [Environment Variables 🌍](#environment-variables-)
+  - [Deployment 🚀](#deployment-)
 
 ## Dev Journey 🕸️
 
