@@ -1,113 +1,112 @@
 # Astral PDF Search Challenge - Getting Started!
 
-1. `bun i` to install deps
-2. `bun dev` to start local dev environment
-3. Ensure to add .example.env environment variables for supabase to work
-4. Visit `/` route on localhost to see the mock UI
+This repository contains the code for the Astral PDF Search Challenge. The goal of this challenge is to create a system that can efficiently search through a large collection of PDF document and return relevant results based on user queries.
 
-# Default README
+## Dev Journey 🕸️
 
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+Check out the [Dev Journey](./dev-journey.md) for more details.
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+## Getting Started 🚀
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+To run the Project, follow these steps:
 
-## Features
+1. Clone the repository:
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Middleware
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+```bash
+git clone https://github.com/BRAVO68WEB/pdf-search 
+```
 
-## Demo
+2. Change into the project directory:
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+```bash
+cd pdf-search
+```
 
-## Deploy to Vercel
+3. Install the dependencies:
 
-Vercel deployment will guide you through creating a Supabase account and project.
+```bash
+bun install
+```
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+4. Start the development server:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+```bash
+bun dev
+```
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+## Tech Stack 🔨
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+- `Nextjs`: A React framework for building server-side rendered applications.
+- `Typescript`: A superset of JavaScript that adds static typing.
+- `Tailwind CSS`: A utility-first CSS framework for styling.
+- `Zod`: A TypeScript-first schema declaration and validation library.
+- `Kysely`: A type-safe SQL query builder for TypeScript.
+- `PostgreSQL`: A powerful, open-source relational database. Hosted on Supabase
+- `Bun`: A modern JavaScript runtime that is fast and efficient.
+- `React`: A JavaScript library for building user interfaces.
+- `Groq-SDK`: A SDK for interacting LLMs via the Groq's AI Inference.
+- `Wrangler`: A command-line tool for building and deploying serverless applications on CloudFlare
+- `Github Actions`: A continuous integration and continuous deployment (CI/CD) platform for automating the build, test, and deployment process.
 
-## Clone and run locally
+## Project Structure 📁
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+The project is organized into the following files and directories:
 
-2. Create a Next.js app using the Supabase Starter template npx command
+- `src`: Contains the source code for the project.
+  - `actions`: Contains code related to NextJs Server Actions.
+  - `public/`: Contains the static assets for the project.
+  - `app/`: Contains code for App Router.
+    - `api/`: Contains the API routes for the project.
+  - `db/`: Contains the database schema and migrations.
+  - `components/`: Contains the React components for the project.
+  - `libs/`: Contains the utility functions and libraries used in the project.
+- `bun.lockb`: Contains the lockfile for the project.
+- `README.md`: This file.
+- `package.json`: Contains the metadata for the project.
+- `.github/workflows/`: Contains the Github Actions workflows for the project.
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+## API Routes 📡
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+The project contains the following API routes:
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+- `/api/search`: Returns a list of documents that match the search query.
+- `/api/history`: Returns a list of search history.
+- `/api/pre`: Returns results thats are preprocessed due to previous the search query.
 
-3. Use `cd` to change into the app's directory
+Check [API Routes](./app/api) Directory for more details.
 
-   ```bash
-   cd with-supabase-app
-   ```
+## Database Schema 🗄️
 
-4. Rename `.env.example` to `.env.local` and update the following:
+The project uses PostgreSQL as the database. The schema is defined in the [db](./src/db/) directory. The database contains the following tables:
 
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=[INSERT SUPABASE PROJECT API ANON KEY]
-   ```
+- `search_results`: Contains the search history.
+- `pdf_stores`: Contains the metadata for the PDF documents.
+- `pdf_parsed`: Contains the relevance data extracted from the PDF documents.
 
-   Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` can be found in [your Supabase project's API settings](https://app.supabase.com/project/_/settings/api)
+Check [Database Schema](./types/database.d.ts) for more details.
 
-5. You can now run the Next.js local development server:
+## Environment Variables 🌍
 
-   ```bash
-   npm run dev
-   ```
+To run the project, you need to set up the following environment variables:
+```
+GROQ_API_KEY=                   // Groq API Key
+CSE_API_KEY=                    // Google Custom Search Engine API Key
+CSE_CX_ID=                      // Google Custom Search Engine CX ID
+DATABASE_URL=                   // PostgreSQL Database URL
+R2_BUCKET_NAME=                 // Cloudflare R2 Bucket Name
+R2_ACCESS_KEY_ID=               // Cloudflare R2 Access Key ID
+R2_SECRET_ACCESS_KEY=           // Cloudflare R2 Secret Access Key
+R2_ENDPOINT=                    // Cloudflare R2 Endpoint
+R2_PUBLIC_URL=                  // Cloudflare R2 Public URL
+```
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+## Deployment 🚀
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+The project is deployed on Cloudflare Workers. The deployment is managed using Wrangler. To deploy the project, run the following command:
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+```bash
+bun run deploy
+```
 
-## Feedback and issues
-
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
-
-## More Supabase examples
-
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+The Project is also deployed to CloudFlare Workers using Github Actions. The deployment is triggered on every push to the main branch
+Check [deploy-cf.yaml](.github/workflows/deploy-cf.yaml) for more details.
