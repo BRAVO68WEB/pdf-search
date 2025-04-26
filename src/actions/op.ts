@@ -2,7 +2,7 @@
 
 import { getRelevantPages, getRelevanceRange, getPdfPageCount } from "@/libs/pdfParse";
 import { downloadPdf } from "@/libs/download";
-import { DB } from "@/supabase/kysely";
+import { DB } from "@/db/kysely";
 import { itemSchema, SearchResultType } from "@/types";
 import { z } from "zod";
 import pLimit from "p-limit";

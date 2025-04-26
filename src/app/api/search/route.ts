@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { queryCSE } from "@/libs/cse";
-import { DB } from "@/supabase/kysely";
+import { DB } from "@/db/kysely";
 import { v7 as uuidv7 } from "uuid";
 
 export async function GET(request: Request) {

@@ -1,15 +1,10 @@
-import { env } from "@/env";
-
-import Groq from "groq-sdk";
 import { WebPDFLoader } from "@langchain/community/document_loaders/web/pdf";
-import { z } from "zod";
-import { DB } from "@/supabase/kysely";
 import pLimit from "p-limit";
 import { v7 as uuidv7 } from "uuid";
 
-const groq = new Groq({
-	apiKey: env.GROQ_API_KEY,
-});
+import { queryGroq, zodSchema } from "./groq";
+
+import { DB } from "@/db/kysely";
 
 export const getPdfPageCount = async (file_blob: Blob) => {
 	const data = new WebPDFLoader(file_blob, {
@@ -37,55 +32,6 @@ const findRelevantPagesByText = async (user_query: string, file_blob: Blob) => {
 		};
 	}
 
-	const zodSchema = z.object({
-		page_no: z.number(),
-		is_relevant: z.boolean(),
-	});
-
-	const jsonSchema = JSON.stringify(zodSchema.shape, null, 2);
-
-	// Memoize query results to avoid duplicate processing
-	const queryCache = new Map();
-
-	const queryGroq = async ({ pageContent, page_no }: { pageContent: string; page_no: number }) => {
-		// Create a cache key based on content hash
-		const cacheKey = `${page_no}-${Buffer.from(pageContent.substring(0, 100)).toString("base64")}`;
-
-		if (queryCache.has(cacheKey)) {
-			return queryCache.get(cacheKey);
-		}
-
-		const response = await groq.chat.completions.create({
-			model: "llama-3.3-70b-versatile",
-			messages: [
-				{
-					role: "system",
-					content: `You are a AI Assistant that finds the pages that are relevant to the user's query and outputs answer in JSON.\n'The JSON object must use the schema: ${jsonSchema}`,
-				},
-				{
-					role: "user",
-					content: `
-                        User query: ${user_query}
-                        Page number: ${page_no}
-                        Page content: ${pageContent}
-                        Please answer with a JSON object that contains the following fields:
-                        - page_no: The page number of the PDF file
-                        - is_relevant: A boolean value that indicates whether the page is relevant to the user's query
-                        The JSON object must use the schema: ${jsonSchema}
-                    `,
-				},
-			],
-			temperature: 0,
-			response_format: {
-				type: "json_object",
-			},
-			stream: false,
-		});
-
-		queryCache.set(cacheKey, response);
-		return response;
-	};
-
 	const processPages = async () => {
 		// Use concurrency limiting to avoid overwhelming the API
 		const limit = pLimit(5); // Process 5 pages concurrently
@@ -106,7 +52,9 @@ const findRelevantPagesByText = async (user_query: string, file_blob: Blob) => {
 					const pageContent = page.pageContent;
 
 					try {
-						const response = await queryGroq({
+						const response = await queryGroq(
+							user_query,
+							{
 							pageContent,
 							page_no,
 						});

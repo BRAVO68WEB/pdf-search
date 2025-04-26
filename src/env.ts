@@ -12,6 +12,7 @@ export const env = createEnv({
 		R2_SECRET_ACCESS_KEY: z.string().min(1),
 		R2_ENDPOINT: z.string().min(1),
 		R2_PUBLIC_URL: z.string().min(1),
+		UPSTASH_REDIS_URI: z.string().min(1),
 	},
 	client: {},
 	runtimeEnv: {
@@ -24,6 +25,7 @@ export const env = createEnv({
 		R2_SECRET_ACCESS_KEY: process.env.R2_SECRET_ACCESS_KEY,
 		R2_ENDPOINT: process.env.R2_ENDPOINT,
 		R2_PUBLIC_URL: process.env.R2_PUBLIC_URL,
+		UPSTASH_REDIS_URI: process.env.UPSTASH_REDIS_URI,
 	},
 });
 

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { DB } from "@/supabase/kysely";
+import { DB } from "@/db/kysely";
 import { SearchResultType } from "@/types";
 
 export async function GET(request: Request) {
