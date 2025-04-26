@@ -185,3 +185,5 @@ export default function Home() {
 		</div>
 	);
 }
+
+export const maxDuration = 300000;
