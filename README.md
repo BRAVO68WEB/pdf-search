@@ -112,6 +112,7 @@ R2_ACCESS_KEY_ID=               // Cloudflare R2 Access Key ID
 R2_SECRET_ACCESS_KEY=           // Cloudflare R2 Secret Access Key
 R2_ENDPOINT=                    // Cloudflare R2 Endpoint
 R2_PUBLIC_URL=                  // Cloudflare R2 Public URL
+UPSTASH_REDIS_URI=              // Upstash Redis URI
 ```
 
 ## Deployment 🚀
